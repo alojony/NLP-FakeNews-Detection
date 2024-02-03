@@ -39,7 +39,7 @@ bash
 
 ## Clone the repository
 ```
-git clone https://github.com/yourusername/fakenewsdetection.git
+https://github.com/alojony/NLP-FakeNews-Detection
 ```
 ### Install required libraries
 ```
