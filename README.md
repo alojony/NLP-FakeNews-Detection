@@ -58,19 +58,19 @@ _Provide examples of how your project can be used, including code snippets or co
 # Modules
 ## Preprocessing
 
-Describe the preprocessing steps the project uses to clean and prepare the textual data for analysis.
+_Describe the preprocessing steps the project uses to clean and prepare the textual data for analysis._
 
 ## Validation of Authenticity
 
-Explain the methodologies and algorithms used to validate the authenticity of news articles.
+_Explain the methodologies and algorithms used to validate the authenticity of news articles._
 
 ## Topic Classification
 
-Detail the approach to classifying the topics of news articles, including any machine learning models or algorithms used.
+_Detail the approach to classifying the topics of news articles, including any machine learning models or algorithms used._
 
 ## Regression for the Evolution of News
 
-Discuss how your project uses regression analysis to study the evolution of news stories over time.
+_Discuss how your project uses regression analysis to study the evolution of news stories over time._
 
 # License
 
@@ -78,8 +78,8 @@ This project is licensed under the GNU General Public License v3.0.
 
 # Authors and Acknowledgment
 
-Credit to the team members.
+_Credit to the team members._
 
 # References
 
-List any references or sources you used in developing your project.
+_List any references or sources you used in developing your project._
