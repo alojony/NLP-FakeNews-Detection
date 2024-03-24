@@ -13,8 +13,6 @@ symbol_to_word = {
         '$': 'dollar',
         '&': 'and',
         '?': 'question',
-        '#': 'hashtag',
-        '@': 'mention',
         '!': 'exclamation'}
 
 def split_symbol(word, symbol_to_word):
@@ -70,72 +68,65 @@ def spacy_tokenizer(text):
     nlp = spacy.load("en_core_web_sm")
     return [tok.text for tok in nlp.tokenizer(str(text))]
 
-def text_edit(dataset,
-              grp_num=False,
-              rm_newline=False,
-              rm_punctuation=False,
-              rm_stop_words=False, 
-              lowercase=False, 
-              lemmatize=False, 
-              expand=False, 
-              html_=False,
-              symb_to_text=False):
-    
-    stop_words = set(stopwords.words('english')) #define set of english stop words
+
+def text_edit(dataset, grp_num=False, rm_newline=False, rm_punctuation=False,
+              rm_stop_words=False, lowercase=False, lemmatize=False,
+              expand=False, html_=False, symb_to_text=False, convert_entities=False, reduce_mentions=False):
+
+    stop_words = set(stopwords.words('english'))  # Define set of English stop words
+    pattern = re.compile(f"[{re.escape(string.punctuation)}]")  # Compile regex pattern for performance
 
     for attrs in dataset.values():
-        #convert html
+        tweet = attrs['tweet']
+
+        if convert_entities:
+            doc = nlp(tweet)
+            for ent in doc.ents:
+                if ent.label_ in ['PERSON']:
+                    tweet = tweet.replace(ent.text, 'person')
+                elif ent.label_ in ['GPE', 'LOC']:
+                    tweet = tweet.replace(ent.text, 'place')
+                elif ent.label_ in ['DATE', 'TIME']:
+                    tweet = tweet.replace(ent.text, 'time')
+
         if html_:
-            attrs['tweet'] = html.unescape(attrs['tweet'])
+            tweet = html.unescape(tweet)
 
-    for attrs in dataset.values():
         if lowercase:
-            attrs['tweet'] = attrs['tweet'].lower()
+            tweet = tweet.lower()
 
-    for attrs in dataset.values():
-        #perform expansion
+        if reduce_mentions:
+            tweet = re.sub(r'#\w+', 'hashtag', tweet)
+            tweet = re.sub(r'@\w+', 'mention', tweet)
+
         if expand:
-            words = attrs['tweet'].split()
-            expanded_words = []
-            for word in words:
-                expanded_word = contractions_dict.get(word, word)
-                expanded_words.append(expanded_word)
-            attrs['tweet'] = ' '.join(expanded_words)
+            words = tweet.split()
+            expanded_words = [contractions_dict.get(word, word) for word in words]
+            tweet = ' '.join(expanded_words)
 
-    for attrs in dataset.values():
-        #stop words removal
         if rm_stop_words:
-            tweet_words = attrs['tweet'].split()
-            filtered_tweet = ' '.join([word for word in tweet_words if word not in stop_words]) 
-            attrs['tweet'] = filtered_tweet
+            words = tweet.split()
+            tweet = ' '.join(word for word in words if word not in stop_words)
 
-    for attrs in dataset.values():
-        #all numbers to 'num'
         if grp_num:
-            attrs['tweet'] = re.sub(r'\d+', 'num', attrs['tweet'])  
+            tweet = re.sub(r'\d+', 'num', tweet)
 
-    for attrs in dataset.values():
-        # Perform symbol_to_text conversion
-        if symb_to_text:
-            words = attrs['tweet'].split()
-            attrs['tweet'] = ' '.join([split_symbol(word, symbol_to_word) for word in words])
-
-    for attrs in dataset.values():
-        #remove newline characters
         if rm_newline:
-            attrs['tweet'] = attrs['tweet'].replace('\n', '')
+            tweet = tweet.replace('\n', '')
 
-    for attrs in dataset.values():
-        #remove punctuation
-        pattern = f"[{re.escape(string.punctuation)}]"
+        if symb_to_text:
+            words = tweet.split()
+            tweet = ' '.join([split_symbol(word, symbol_to_word) for word in words])
+
         if rm_punctuation:
-            attrs['tweet'] = re.sub(pattern, '', attrs['tweet'])
-            attrs['tweet'] = re.sub(r' +', ' ', attrs['tweet'])
+            tweet = pattern.sub('', tweet)
+            tweet = re.sub(r' +', ' ', tweet)
 
-    for attrs in dataset.values():
         if lemmatize:
-            tweet_words = attrs['tweet'].split()
-            filtered_tweet = ' '.join([tok.lemma_ for tok in nlp(' '.join(tweet_words))]) 
-            attrs['tweet'] = filtered_tweet
+            tweet_words = tweet.split()
+            tweet = ' '.join(tok.lemma_ for tok in nlp(' '.join(tweet_words)))
+
+        # Update the tweet after all transformations
+        attrs['tweet'] = tweet
 
     return dataset

@@ -7,7 +7,7 @@ from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_sc
 
 def build_dataset(path, num_class_samples=-1, rnd_state=42):
     df = pd.read_excel(path, engine='openpyxl')
-    #df = df[df['5_label_majority_answer'] == 'Agree']
+    df = df[df['5_label_majority_answer'] == 'Agree']
     if num_class_samples != -1:
         df = df.sample(n=min(len(df), num_class_samples), replace=False, random_state=rnd_state)
     return df.T.to_dict()
