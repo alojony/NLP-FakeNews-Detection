@@ -4,10 +4,14 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, recall_score, f1_score, precision_score
+from nltk.tokenize import word_tokenize
+import numpy as np
+
 
 def build_dataset(path, num_class_samples=-1, rnd_state=42):
     df = pd.read_excel(path, engine='openpyxl')
-    df = df[df['5_label_majority_answer'] == 'Agree']
+    df = df[df['3_label_majority_answer'] == 'Agree']
+    df = df.dropna(subset=['tweet'])
     if num_class_samples != -1:
         df = df.sample(n=min(len(df), num_class_samples), replace=False, random_state=rnd_state)
     return df.T.to_dict()
@@ -42,3 +46,13 @@ def evaluate(Y_test, y_pred):
     print('Recall: ', recall_score(Y_test, y_pred))
     print('F1_score: ', f1_score(Y_test, y_pred))
     print('accuracy: ', accuracy_score(Y_test, y_pred))
+
+def preprocess_text(text, language='french'):
+    return word_tokenize(text.lower(), language=language)
+
+def text_to_word2vec(text, model):
+    words = preprocess_text(text)
+    vectors = [model[word] for word in words if word in model]
+    if len(vectors) == 0:
+        return np.zeros(model.vector_size)
+    return np.mean(vectors, axis=0)
