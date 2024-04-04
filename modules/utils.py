@@ -56,3 +56,5 @@ def text_to_word2vec(text, model):
     if len(vectors) == 0:
         return np.zeros(model.vector_size)
     return np.mean(vectors, axis=0)
+
+

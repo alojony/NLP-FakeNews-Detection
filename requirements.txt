@@ -2,7 +2,15 @@ nltk
 spacy
 matplotlib
 pandas
-scikit-learn
 wordcloud
 numpy
-seaborn
+tqdm
+TextBlob
+gensim
+pyLDAvis
+wordcloud
+torch
+torchvision  # Often used alongside PyTorch, even though not explicitly mentioned here
+scikit-learn  # For train_test_split and potentially other utilities
+emoji
+NRCLex
